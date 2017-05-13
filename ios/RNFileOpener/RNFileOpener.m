@@ -37,27 +37,19 @@ RCT_REMAP_METHOD(open, filePath:(NSString *)filePath fileMine:(NSString *)fileMi
     previewController.delegate=self;
     previewController.dataSource=self;
     previewController.currentPreviewItemIndex = 0;
-
-    
-   // self.FileOpener = [UIDocumentInteractionController interactionControllerWithURL:self.fileURL];
-    // self.FileOpener.delegate = self;
-    
     UIViewController *ctrl = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
-    
-    [ctrl presentModalViewController:previewController animated:YES];
+    [ctrl presentViewController:previewController
+        animated:YES
+        completion:^{
+            [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+            resolve(@"completed");
+        }
+    ];
     [previewController.navigationItem setRightBarButtonItem:nil];
-    
-    // BOOL wasOpened = [self.FileOpener presentOptionsMenuFromRect:ctrl.view.bounds inView:ctrl.view animated:YES];
-    // BOOL wasOpened = [self.FileOpener presentPreviewAnimated:YES];
-    
-    resolve(@"completed");
-/*    if (wasOpened) {
-        resolve(@"Open success!!");
-    } else {
-        NSError *error = [NSError errorWithDomain:@"Open error" code:500 userInfo:nil];
-        reject(@"Open error", @"Open error", error);
-    } */
-    
+}
+
+- (void)previewControllerWillDismiss:(QLPreviewController *)controller {
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
 @end
