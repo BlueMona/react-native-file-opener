@@ -3,6 +3,7 @@
 @implementation FileOpener
 NSURL *fileURL;
 @synthesize bridge = _bridge;
+RCTPromiseResolveBlock currentResolver = nil;
 
 - (dispatch_queue_t)methodQueue
 {
@@ -23,7 +24,11 @@ RCT_REMAP_METHOD(open, filePath:(NSString *)filePath fileMine:(NSString *)fileMi
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
-    
+    if (currentResolver != nil) {
+        NSLog(@"Preview still opened");
+        currentResolver(@"completed prematurely");
+    }
+    currentResolver = resolve;
     fileURL = [NSURL fileURLWithPath:filePath];
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
@@ -42,13 +47,14 @@ RCT_REMAP_METHOD(open, filePath:(NSString *)filePath fileMine:(NSString *)fileMi
         animated:YES
         completion:^{
             [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
-            resolve(@"completed");
         }
     ];
     [previewController.navigationItem setRightBarButtonItem:nil];
 }
 
 - (void)previewControllerWillDismiss:(QLPreviewController *)controller {
+    currentResolver(@"completed");
+    currentResolver = nil;
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
 
