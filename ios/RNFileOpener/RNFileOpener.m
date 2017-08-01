@@ -4,6 +4,7 @@
 NSURL *fileURL;
 @synthesize bridge = _bridge;
 RCTPromiseResolveBlock currentResolver = nil;
+QLPreviewController *previewController = nil;
 
 - (dispatch_queue_t)methodQueue
 {
@@ -38,7 +39,7 @@ RCT_REMAP_METHOD(open, filePath:(NSString *)filePath fileMine:(NSString *)fileMi
         return;
     }
    
-    QLPreviewController *previewController=[[QLPreviewController alloc]init];
+    previewController=[[QLPreviewController alloc]init];
     previewController.delegate=self;
     previewController.dataSource=self;
     previewController.currentPreviewItemIndex = 0;
@@ -53,7 +54,8 @@ RCT_REMAP_METHOD(open, filePath:(NSString *)filePath fileMine:(NSString *)fileMi
 }
 
 - (void)previewControllerWillDismiss:(QLPreviewController *)controller {
-    currentResolver(@"completed");
+    if (controller != previewController) return;
+    if (currentResolver != nil) currentResolver(@"completed");
     currentResolver = nil;
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent];
 }
