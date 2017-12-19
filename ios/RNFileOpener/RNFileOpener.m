@@ -1,7 +1,27 @@
 #import "RNFileOpener.h"
 
+@interface QLPreviewItemCustom : NSObject <QLPreviewItem>
+- (id) initWithTitle:(NSString*)title url:(NSURL*)url;
+@end
+
+@implementation QLPreviewItemCustom
+@synthesize previewItemTitle = _previewItemTitle;
+@synthesize previewItemURL   = _previewItemURL;
+
+- (id) initWithTitle:(NSString*)title url:(NSURL*)url
+{
+    self = [super init];
+    if (self != nil) {
+        _previewItemTitle = title;
+        _previewItemURL   = url;
+    }
+    return self;
+}
+@end
+
 @implementation FileOpener
 NSURL *fileURL;
+NSString *title;
 @synthesize bridge = _bridge;
 RCTPromiseResolveBlock currentResolver = nil;
 QLPreviewController *previewController = nil;
@@ -16,12 +36,17 @@ QLPreviewController *previewController = nil;
 }
 
 - (id<QLPreviewItem>)previewController:(QLPreviewController *)controller previewItemAtIndex:(NSInteger)index {
-    return [NSURL fileURLWithPath:fileURL.path];
+    return [[QLPreviewItemCustom alloc]
+                                initWithTitle:title
+                                url:[NSURL fileURLWithPath:fileURL.path]];
 }
 
 RCT_EXPORT_MODULE();
 
-RCT_REMAP_METHOD(open, filePath:(NSString *)filePath fileMine:(NSString *)fileMine
+RCT_REMAP_METHOD(open,
+                 filePath:(NSString *)filePath
+                 fileMine:(NSString *)fileMine
+                 fileTitle:(NSString *)fileTitle
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -31,6 +56,7 @@ RCT_REMAP_METHOD(open, filePath:(NSString *)filePath fileMine:(NSString *)fileMi
     }
     currentResolver = resolve;
     fileURL = [NSURL fileURLWithPath:filePath];
+    title = fileTitle;
     
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if(![fileManager fileExistsAtPath:fileURL.path]) {
