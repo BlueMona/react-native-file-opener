@@ -32,7 +32,8 @@ public class FileOpener extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void open(String fileArg, String contentType, Promise promise) throws JSONException {
+    public void open(String fileArg, String contentType, String title, Promise promise) throws JSONException {
+        // title is only used by iOS currently
         Uri path = null;
         if (fileArg.startsWith("content:")) {
             path = Uri.parse(fileArg);
