@@ -135,8 +135,7 @@ public class FileOpener extends ReactContextBaseJavaModule {
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setDataAndType(path, contentType);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             getReactApplicationContext().startActivity(intent);
             promise.resolve("FileOpener.java: open success");
         } catch (android.content.ActivityNotFoundException e) {
